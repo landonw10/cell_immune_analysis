@@ -1,6 +1,10 @@
 import sqlite3
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import mannwhitneyu
 
+# Create a summary of immune cell frequencies across samples
 def get_frequency_summary(db_path="database.db"):
     # Connect to database
     conn = sqlite3.connect(db_path)
@@ -26,3 +30,69 @@ def get_frequency_summary(db_path="database.db"):
     })
 
     return summary[["sample", "total_count", "population", "count", "percentage"]]
+
+# Compare immune cell frequencies between treatment response groups
+def compare_response_groups(summary_df, db_path="database.db"):
+    # Load sample metadata
+    conn = sqlite3.connect(db_path)
+    metadata = pd.read_sql_query("SELECT sample_id, condition, treatment, sample_type, response FROM sample_metadata", conn)
+    conn.close()
+
+    # Merge summary with metadata (summary_df uses sample, metadata uses sample_id)
+    merged = summary_df.merge(metadata, left_on="sample", right_on="sample_id")
+
+    # Filter for melanoma + miraclib + PBMC
+    filtered = merged[
+        (merged["condition"] == "melanoma") &
+        (merged["treatment"] == "miraclib") &
+        (merged["sample_type"] == "PBMC")
+    ]
+
+    # Display data w/ boxplot
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(
+        data=filtered,
+        x="population",
+        y="percentage",
+        hue="response"
+    )
+    plt.title("Immune Cell Frequencies by Treatment Response")
+    plt.ylabel("Percentage of Total Cells")
+    plt.xlabel("Immune Cell Type")
+    plt.legend(title="Response")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    # Statistical analysis using Mann-Whitney U test
+    print("\nStatistical Comparison (Mann-Whitney U Test):")
+    populations = filtered["population"].unique()
+
+    significant_pops = []
+
+    for pop in populations:
+        group = filtered[filtered["population"] == pop]
+        yes = group[group["response"] == "yes"]["percentage"]
+        no = group[group["response"] == "no"]["percentage"]
+
+        if len(yes) > 0 and len(no) > 0:
+            stat, p = mannwhitneyu(yes, no, alternative="two-sided")
+            print(f"{pop}: p = {p:.4f}")
+            if p < 0.05:
+                significant_pops.append(pop)
+        else:
+            print(f"{pop}: Not enough data for statistical test")
+
+    # Print summary sentence
+    if significant_pops:
+        print(
+            f"\n{', '.join(significant_pops)} "
+            f"{'shows' if len(significant_pops) == 1 else 'show'} a statistically significant "
+            "difference in relative frequency between responders and non-responders."
+        )
+    else:
+        print("\nNo cell populations show a statistically significant difference in relative frequency.")
+
+if __name__ == "__main__":
+    summary = get_frequency_summary()
+    compare_response_groups(summary)
