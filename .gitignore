@@ -13,3 +13,6 @@ database.db
 
 # Ignore exported files
 outputs/
+
+# Ignore local virtual environment
+env/
