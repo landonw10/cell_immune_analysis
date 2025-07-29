@@ -1,0 +1,15 @@
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore your database file
+database.db
+
+# Ignore Streamlit cache
+.streamlit/
+
+# Ignore exported files
+outputs/
