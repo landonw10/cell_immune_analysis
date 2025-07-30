@@ -61,11 +61,30 @@ elif view == "Subset Summary":
     conn.close()
 
     # Filters using metadata
-    conditions = st.multiselect("Select Condition", options=metadata["condition"].unique())
-    treatments = st.multiselect("Select Treatment", options=metadata["treatment"].unique())
-    sample_types = st.multiselect("Select Sample Type", options=metadata["sample_type"].unique())
-    timepoints = st.multiselect("Select Timepoint (Days from Treatment Start)", options=metadata["time_from_treatment_start"].dropna().unique())
+    conditions = st.multiselect(
+        "Select Condition",
+        options=metadata["condition"].unique(),
+        default=["melanoma"] if "melanoma" in metadata["condition"].unique() else []
+    )
 
+    treatments = st.multiselect(
+        "Select Treatment",
+        options=metadata["treatment"].unique(),
+        default=["miraclib"] if "miraclib" in metadata["treatment"].unique() else []
+    )
+
+    sample_types = st.multiselect(
+        "Select Sample Type",
+        options=metadata["sample_type"].unique(),
+        default=["PBMC"] if "PBMC" in metadata["sample_type"].unique() else []
+    )
+
+    timepoints = st.multiselect(
+        "Select Timepoint (Days from Treatment Start)",
+        options=metadata["time_from_treatment_start"].dropna().unique(),
+        default=[0] if 0 in metadata["time_from_treatment_start"].dropna().unique() else []
+    )
+    
     filters = {
         "condition": conditions,
         "treatment": treatments,
