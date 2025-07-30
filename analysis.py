@@ -34,9 +34,13 @@ def get_frequency_summary(db_path="database.db"):
 
     return summary[["sample", "total_count", "population", "count", "percentage"]]
 
+# Display the frequency summary in a Streamlit app
+def display_frequency_summary(filtered_df):
+    st.subheader("Immune Cell Frequency Summary")
+    st.dataframe(filtered_df, height=600, use_container_width=True)
 
 
-# Compare immune cell frequencies between treatment response groups
+# Compare immune cell frequencies between treatment response groups and display results
 def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Load sample metadata
     conn = sqlite3.connect(db_path)

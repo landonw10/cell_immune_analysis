@@ -4,7 +4,7 @@ import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from analysis import get_frequency_summary, compare_response_groups, analyze_baseline_subset
+from analysis import get_frequency_summary, display_frequency_summary, compare_response_groups, analyze_baseline_subset
 from load_data import create_schema, load_csv_to_db
 
 # Ensure the database and schema exist
@@ -41,7 +41,7 @@ if view == "Overview":
     if populations:
         filtered = filtered[filtered["population"].isin(populations)]
 
-    st.dataframe(filtered)
+    display_frequency_summary(filtered)
 
 elif view == "Response Group Comparison":
     st.header("📊 Response Group Comparison")
