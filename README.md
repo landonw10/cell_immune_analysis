@@ -1,24 +1,23 @@
 # Cell Immune Analysis
 
-This project contains a Python program and interactive dashboard to support exploratory immune profiling from clinical trial data, specifically made for and auto-set to evaluating treatment responses to the drug candidate miraclib in melanoma PBMC samples.
+This project contains a Python program and interactive dashboard to explore and analyze clinical trial data contained in a CSV file.
 
-The application was developed as a technical assessment and is designed to:
+The application is designed to:
 - Load immune cell count data into a relational database
 - Perform summary statistics on immune cell population frequencies
 - Compare immune cell frequencies of responders vs. non-responders
-- Support querying of specific subgroups of interest
+- Support querying summaries of specific subgroups of interest
 - Display results interactively through a Streamlit dashboard
 
 Has functionality to filter and analyze across any group, but is preconfigured to display melanoma PBMC samples treated with miraclib, as requested.
 
 ---
 
-## 🚀 Getting Started
+## Instructions
 
-✅ This project uses a `.devcontainer` with Python 3.10 and automatic dependency setup. When opened in GitHub Codespaces, everything should be pre-installed and ready to run.
+The project uses a `.devcontainer` with Python 3.10 and automatic dependency setup. When opened in GitHub Codespaces, everything should be pre-installed and ready to run.
 
-### Requirements
-This app is designed to run in **GitHub Codespaces** or any Python 3.10 environment (specified in .devcontainer).
+### Steps
 
 1. Create a codespace with this repository:
 
@@ -38,10 +37,8 @@ streamlit run app.py
 
 ---
 
-## 🧱 Database Schema
+## Database Schema
 ### The data from cell-count.csv is loaded into a SQLite database with the following schema:
-
-This project uses a normalized SQLite database with the following schema:
 
 #### **`sample_metadata`**
 
@@ -68,16 +65,11 @@ This project uses a normalized SQLite database with the following schema:
 
 ### Rationale and Scalability
 
-The database schema and application architecture are designed to be normalized, extensible, and scalable for broader clinical and immunological analysis.
+The database schema and application code logic are designed to be normalized, easily extensible, and scalable for broader clinical and immunological analysis.
 
-The schema separates metadata (`sample_metadata`) from measurements (`cell_counts`), eliminating redundancy and supporting flexible analytics. Foreign key constraints maintain integrity between tables. This design supports efficient operation even with:
+The schema separates metadata (`sample_metadata`) from measurements (`cell_counts`), eliminating redundancy and supporting flexible analytics. Foreign key constraints maintain integrity between tables. This design supports efficient operation even with across larger projects with bigger sample size and more cell types, treatments, conditions, and timepoints.
 
-- Hundreds of projects
-- Thousands of samples
-- Dozens of immune cell types
-- Multiple treatment timepoints and conditions
-
-The dashboard and backend logic are built to be dynamic and work for any dataset using the same .csv column structure. Filter options (condition, treatment, sample type, timepoint) are loaded directly from the database at runtime. This enables the dashboard to adapt seamlessly to any dataset conforming to the schema. No code changes are needed when introducing new disease types, treatments, or sample types.
+The dashboard and backend logic are built to be dynamic and work for any dataset using the same .csv column structure. Filter options (condition, treatment, sample type, timepoint) are loaded directly from the database at runtime. This enables the dashboard to adapt to any dataset conforming to the schema. No code changes are needed when introducing new disease types, treatments, or sample types.
 
 The analysis module supports:
 - Cell frequency computation for each sample and immune cell type
@@ -86,13 +78,9 @@ The analysis module supports:
 
 These operations are modular and easily extensible to additional analytics or more complex filtering logic.
 
-The architecture is also designed for performance at scale:
-- Indexing on frequently queried fields (`sample_id`, `cell_type`) would support fast filtering and aggregation
-- Additional tables can be added to support longitudinal data or multi-modal inputs such as protein markers or imaging features
-
 ---
 
-## 🧠 Code Structure
+## Code Structure
 
 cell-immune-analysis/
 
@@ -110,31 +98,49 @@ cell-immune-analysis/
 
 ├── requirements.txt
 
-└── README.md
+└── README.md<br><br>
 
-### Descriptions
+### Descriptions and Contained Functions
 
-- `.devcontainer` — Configuration for GitHub Codespaces with prebuilt Python 3.10 environment and automatic dependency installation
-- `app.py` — Streamlit dashboard with interactive widgets and visualizations  
-- `analysis.py` — Functions for summary statistics and statistical testing  
-- `load_data.py` — Database schema creation and CSV loading logic  
-- `cell-count.csv` — Raw immune profiling data  
-- `requirements.txt` — Required Python packages  
-- `README.md` — Project documentation (this file)
+`.devcontainer` — Configuration for GitHub Codespaces with prebuilt Python 3.10 environment and automatic dependency installation.<br><br>
+  
+`app.py` — Streamlit dashboard that displays analyses and summaries. Utilizes functions from `analysis.py` and `load_data.py`.<br><br>
+  
+`analysis.py` — Functions for summary statistics, statistical testing, and display logic. Contains:
+
+- `get_frequency_summary(db_path="database.db")` — Computes cell-type frequencies for each sample
+  
+- `display_frequency_summary(filtered_df)` — Displays the filtered summary table in Streamlit
+
+- `compare_response_groups(summary_df, filters, db_path="database.db")` — Compares filtered cell frequencies between responders and non-responders
+
+- `analyze_subset(filters, db_path="database.db")` — Summarizes population distribution of filtered subset<br><br>
+
+`load_data.py` — Database schema creation and CSV loading logic. Contains:
+
+- `create_schema(conn)` — Initializes the database schema with sample_metadata and cell_counts tables
+
+- `load_csv_to_db(csv_path, db_path="database.db")` — Loads data from a CSV into the SQLite database<br><br>
+
+`cell-count.csv` — Raw immune profiling data.<br><br>
+
+`requirements.txt` — Required Python packages.  <br><br>
+
+`README.md` — Project documentation (this file).
 
 ### Explanation
 
-The project is structured to separate concerns across three key areas: data loading, analysis logic, and user interface. This modular architecture enhances readability, maintainability, and extensibility.
+The project is structured to separate logic across three key areas: data loading, analysis and display logic, and user interface. This helps with readability, maintainability, and extensibility.
 
-- **`load_data.py`** handles database schema creation and data loading. It ensures that the raw CSV file is consistently normalized into relational tables (`sample_metadata` and `cell_counts`), making the data ready for querying and analysis.
-- **`analysis.py`** contains not only the core analytical functions (frequency calculations, statistical comparisons, and subset summaries) but also the code for rendering visual outputs (boxplots, textual summaries) that are displayed within the Streamlit app. This design allows new analyses and visualizations to be added directly to `analysis.py` without requiring changes to the main application file.
-- **`app.py`** is responsible for the user interface and routing. It provides a clean navigation structure, leaves computational work to `analysis.py`, and dynamically populates all filter options from the database. This ensures the interface adapts automatically to any valid dataset that conforms to the schema.
+- `load_data.py` handles database schema creation and data loading. It normalized CSV files into relational tables (`sample_metadata` and `cell_counts`), making the data ready for querying and analysis.
+- `analysis.py` contains core analytical functions (frequency calculations, statistical comparisons, and subset summaries) and also the code for rendering visual outputs (boxplots, textual summaries) that are displayed within the Streamlit app. This allows new analyses and visualizations to be added directly to this file without requiring changes to `app.py`.
+- `app.py` is responsible for the user interface and routing. It provides navigation, leaves computational work to `analysis.py`, and dynamically populates all filter options from the database. This ensures the interface adapts automatically to any valid dataset that conforms to the schema.
 
-By isolating data handling, computation, and interface logic, the project is easy to scale and extend. Analysts can introduce new views, filters, or statistical tests with minimal impact on the rest of the codebase.
+By isolating data handling, computation, and interface logic, the project is easy to scale and extend. New views, filters, or statistical tests can be added with minimal impact on the rest of the codebase.
 
 ---
 
-## 📊 Dashboard Features
+## Dashboard Features
 - Overview: Relative frequency (%) of each immune cell population across all samples.
 
 - Response Group Comparison: Boxplot comparison and statistical analysis of cell type frequencies between responders and non-responders.
@@ -143,8 +149,4 @@ By isolating data handling, computation, and interface logic, the project is eas
 
 Contains functionality to filter and analyze by any group, but it autoset to display the requested melanoma PBMC samples treated with miraclib.
 
-## 📎 Submission Details
-
-📁 GitHub Repository: https://github.com/landonw10/cell_immune_analysis
-
-🔗 Dashboard URL: https://cell-immune-analysis.streamlit.app/
+Dashboard URL: https://cell-immune-analysis.streamlit.app/
