@@ -33,7 +33,7 @@ pip install -r requirements.txt
 3. Then, launch the dashboard:
 
 ```
-streamtlit run app.py
+streamlit run app.py
 ```
 
 ---
@@ -121,8 +121,6 @@ cell-immune-analysis/
 - `cell-count.csv` — Raw immune profiling data  
 - `requirements.txt` — Required Python packages  
 - `README.md` — Project documentation (this file)
-
-### Explanation
 
 ### Explanation
 
