@@ -1,6 +1,6 @@
 # Cell Immune Analysis
 
-This project contains a Python program and interactive dashboard to support exploratory immune profiling from clinical trial data, specifically made for and autoset to evaluating treatment responses to the drug candidate miraclib in melanoma patients with PBMC samples.
+This project contains a Python program and interactive dashboard to support exploratory immune profiling from clinical trial data, specifically made for and auto-set to evaluating treatment responses to the drug candidate miraclib in melanoma PBMC samples.
 
 The application was developed as a technical assessment and is designed to:
 - Load immune cell count data into a relational database
@@ -9,7 +9,7 @@ The application was developed as a technical assessment and is designed to:
 - Support querying of specific subgroups of interest
 - Display results interactively through a Streamlit dashboard
 
-It has functionality to filter and analyze by any group, but it autoset to display melanoma PBMC samples treated with miraclib.
+Has functionality to filter and analyze across any group, but is preconfigured to display melanoma PBMC samples treated with miraclib, as requested.
 
 ---
 
