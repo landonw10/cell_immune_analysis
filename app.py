@@ -9,7 +9,9 @@ from load_data import create_schema, load_csv_to_db
 
 # Ensure the database and schema exist
 if not os.path.exists("database.db"):
-    create_schema()
+    conn = sqlite3.connect("database.db")
+    create_schema(conn)
+    conn.close()
     load_csv_to_db("cell-count.csv")
 
 st.set_page_config(page_title="Immune Cell Dashboard", layout="wide")
