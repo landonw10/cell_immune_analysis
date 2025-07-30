@@ -122,50 +122,36 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
 
 
 # Melanoma baseline subset analysis
-def analyze_baseline_subset(db_path="database.db"):
+def analyze_baseline_subset(filters=None, db_path="database.db"):
     conn = sqlite3.connect(db_path)
-    
-    # Load sample metadata
     df = pd.read_sql_query("SELECT * FROM sample_metadata", conn)
     conn.close()
 
-    # Filter for baseline melanoma PBMC samples treated with miraclib
-    subset = df[
-        (df["condition"] == "melanoma") &
-        (df["sample_type"] == "PBMC") &
-        (df["time_from_treatment_start"] == 0) &
-        (df["treatment"] == "miraclib")
-    ]
+    # Apply filters
+    if filters:
+        if filters.get("condition"):
+            df = df[df["condition"].isin(filters["condition"])]
+        if filters.get("treatment"):
+            df = df[df["treatment"].isin(filters["treatment"])]
+        if filters.get("sample_type"):
+            df = df[df["sample_type"].isin(filters["sample_type"])]
+        if filters.get("timepoint"):
+            df = df[df["time_from_treatment_start"].isin(filters["timepoint"])]
 
-    print("\nFiltered subset shape:", subset.shape)
-    
-    # Samples per project
-    samples_per_project = subset["project"].value_counts()
-    print("Number of samples per project:")
-    print(samples_per_project.to_string(index=True))
+    if df.empty:
+        st.warning("No data available for the selected filters.")
+        return
 
-    # Subjects by response
-    subjects_by_response = subset.groupby("response")["subject"].nunique()
-    print("\nNumber of unique subjects by response:")
-    print(subjects_by_response.to_string(index=True))
+    st.write(f"Filtered subset shape: {df.shape}")
 
-    # Subjects by sex
-    subjects_by_sex = subset.groupby("sex")["subject"].nunique()
-    print("\nNumber of unique subjects by sex:")
-    print(subjects_by_sex.to_string(index=True))
-
-    # Display in Streamlit
     st.subheader("Samples per Project")
-    samples_per_project = subset["project"].value_counts()
-    st.text(samples_per_project.to_string())
+    st.text(df["project"].value_counts().to_string())
 
     st.subheader("Subjects by Response")
-    subjects_by_response = subset.groupby("response")["subject"].nunique()
-    st.text(subjects_by_response.to_string())
+    st.text(df.groupby("response")["subject"].nunique().to_string())
 
     st.subheader("Subjects by Sex")
-    subjects_by_sex = subset.groupby("sex")["subject"].nunique()
-    st.text(subjects_by_sex.to_string())
+    st.text(df.groupby("sex")["subject"].nunique().to_string())
 
 
 

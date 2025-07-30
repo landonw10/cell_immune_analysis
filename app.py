@@ -16,7 +16,7 @@ summary = get_frequency_summary()
 view = st.sidebar.selectbox("Select View", [
     "Overview", 
     "Response Group Comparison", 
-    "Baseline Subset Analysis"
+    "Subset Summary"
 ])
 
 if view == "Overview":
@@ -49,10 +49,28 @@ elif view == "Response Group Comparison":
         "sample_type": [sample_type]
     }
 
-
     compare_response_groups(summary, filters=filters)
 
-elif view == "Baseline Subset Analysis":
-    st.header("🔍 Baseline Subset Summary")
-    st.write("Summary of baseline PBMC samples from miraclib-treated melanoma patients, including sample counts by project, response status, and sex.")
-    analyze_baseline_subset()
+elif view == "Subset Summary":
+    st.header("🔍 Subset Summary")
+    st.write("Explore subject characteristics across different treatment timepoints and sample groups.")
+
+    # Load metadata for filtering
+    conn = sqlite3.connect("database.db")
+    metadata = pd.read_sql_query("SELECT condition, treatment, sample_type, time_from_treatment_start FROM sample_metadata", conn)
+    conn.close()
+
+    # Filters using metadata
+    conditions = st.multiselect("Select Condition", options=metadata["condition"].unique())
+    treatments = st.multiselect("Select Treatment", options=metadata["treatment"].unique())
+    sample_types = st.multiselect("Select Sample Type", options=metadata["sample_type"].unique())
+    timepoints = st.multiselect("Select Timepoint (Days from Treatment Start)", options=metadata["time_from_treatment_start"].dropna().unique())
+
+    filters = {
+        "condition": conditions,
+        "treatment": treatments,
+        "sample_type": sample_types,
+        "timepoint": timepoints
+    }
+
+    analyze_baseline_subset(filters)
