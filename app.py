@@ -1,0 +1,58 @@
+import streamlit as st
+import pandas as pd
+import sqlite3
+import matplotlib.pyplot as plt
+import seaborn as sns
+from analysis import get_frequency_summary, compare_response_groups, analyze_baseline_subset
+from load_data import create_schema, load_csv_to_db
+
+st.set_page_config(page_title="Immune Cell Dashboard", layout="wide")
+st.title("🧬 Immune Cell Frequency Analysis Dashboard")
+
+# Load frequency data
+summary = get_frequency_summary()
+
+# Sidebar navigation
+view = st.sidebar.selectbox("Select View", [
+    "Overview", 
+    "Response Group Comparison", 
+    "Baseline Subset Analysis"
+])
+
+if view == "Overview":
+    st.header("📋 Overview of Cell Frequencies")
+    st.write("Interactive view of immune cell frequencies per sample, with filters for sample and cell population.")
+
+    # Filters
+    samples = st.multiselect("Select Samples", options=summary["sample"].unique())
+    populations = st.multiselect("Select Cell Populations", options=summary["population"].unique())
+
+    filtered = summary.copy()
+    if samples:
+        filtered = filtered[filtered["sample"].isin(samples)]
+    if populations:
+        filtered = filtered[filtered["population"].isin(populations)]
+
+    st.dataframe(filtered)
+
+elif view == "Response Group Comparison":
+    st.header("📊 Response Group Comparison")
+    st.write("Compare responders vs. non-responders based on selected filters.")
+
+    condition = st.selectbox("Condition", options=["melanoma", "carcinoma"])
+    treatment = st.selectbox("Treatment", options=["miraclib", "phauximab"])
+    sample_type = st.selectbox("Sample Type", options=["PBMC", "WB"])
+
+    filters = {
+        "condition": [condition],
+        "treatment": [treatment],
+        "sample_type": [sample_type]
+    }
+
+
+    compare_response_groups(summary, filters=filters)
+
+elif view == "Baseline Subset Analysis":
+    st.header("🔍 Baseline Subset Summary")
+    st.write("Summary of baseline PBMC samples from miraclib-treated melanoma patients, including sample counts by project, response status, and sex.")
+    analyze_baseline_subset()
