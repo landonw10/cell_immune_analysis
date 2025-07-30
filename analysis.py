@@ -125,8 +125,8 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
 
 
 
-# Melanoma baseline subset analysis and dashboard display
-def analyze_baseline_subset(filters=None, db_path="database.db"):
+# Subset analysis and dashboard display
+def analyze_subset(filters=None, db_path="database.db"):
     conn = sqlite3.connect(db_path)
     df = pd.read_sql_query("SELECT * FROM sample_metadata", conn)
     conn.close()

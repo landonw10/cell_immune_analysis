@@ -4,7 +4,7 @@ import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from analysis import get_frequency_summary, display_frequency_summary, compare_response_groups, analyze_baseline_subset
+from analysis import get_frequency_summary, display_frequency_summary, compare_response_groups, analyze_subset
 from load_data import create_schema, load_csv_to_db
 
 # Ensure the database and schema exist
@@ -100,4 +100,4 @@ elif view == "Subset Summary":
         "timepoint": timepoints
     }
 
-    analyze_baseline_subset(filters)
+    analyze_subset(filters)
