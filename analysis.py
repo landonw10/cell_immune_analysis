@@ -142,8 +142,6 @@ def analyze_baseline_subset(filters=None, db_path="database.db"):
         st.warning("No data available for the selected filters.")
         return
 
-    st.write(f"Filtered subset shape: {df.shape}")
-
     st.subheader("Samples per Project")
     st.text(df["project"].value_counts().to_string())
 
