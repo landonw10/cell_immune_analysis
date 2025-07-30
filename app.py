@@ -3,8 +3,14 @@ import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 from analysis import get_frequency_summary, compare_response_groups, analyze_baseline_subset
 from load_data import create_schema, load_csv_to_db
+
+# Ensure the database and schema exist
+if not os.path.exists("database.db"):
+    create_schema()
+    load_csv_to_db("cell-count.csv")
 
 st.set_page_config(page_title="Immune Cell Dashboard", layout="wide")
 st.title("🧬 Immune Cell Frequency Analysis Dashboard")
@@ -84,7 +90,7 @@ elif view == "Subset Summary":
         options=metadata["time_from_treatment_start"].dropna().unique(),
         default=[0] if 0 in metadata["time_from_treatment_start"].dropna().unique() else []
     )
-    
+
     filters = {
         "condition": conditions,
         "treatment": treatments,
