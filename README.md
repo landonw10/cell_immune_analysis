@@ -145,6 +145,6 @@ Contains functionality to filter and analyze by any group, but it autoset to dis
 
 ## 📎 Submission Details
 
-📁 GitHub Repository: https://github.com/landonw10/cell-immune-analysis
+📁 GitHub Repository: https://github.com/landonw10/cell_immune_analysis
 
-🔗 Dashboard URL: https://cell_immune_analysis.streamlit.app/
+🔗 Dashboard URL: https://cell-immune-analysis.streamlit.app/
