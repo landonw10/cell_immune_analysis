@@ -7,7 +7,7 @@ from scipy.stats import mannwhitneyu
 
 
 
-# Create a summary of immune cell frequencies across samples
+# Create summary of immune cell frequencies across samples
 def get_frequency_summary(db_path="database.db"):
     # Connect to database
     conn = sqlite3.connect(db_path)
@@ -34,13 +34,13 @@ def get_frequency_summary(db_path="database.db"):
 
     return summary[["sample", "total_count", "population", "count", "percentage"]]
 
-# Display the frequency summary in a Streamlit app
+# Display the frequency summary on dashboard app
 def display_frequency_summary(filtered_df):
     st.subheader("Immune Cell Frequency Summary")
     st.dataframe(filtered_df, height=600, use_container_width=True)
 
 
-# Compare immune cell frequencies between treatment response groups and display results
+# Compare immune cell frequencies between treatment response groups and display results on dashboard
 def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Load sample metadata
     conn = sqlite3.connect(db_path)
@@ -106,7 +106,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
             print(f"{pop}: Not enough data for statistical test")
             st.write(f"{pop}: Not enough data")
 
-    # Print summary sentence
+    # Print/display summary sentence
     st.subheader("Summary")
     if significant_pops:
         print(
@@ -125,7 +125,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
 
 
 
-# Melanoma baseline subset analysis
+# Melanoma baseline subset analysis and dashboard display
 def analyze_baseline_subset(filters=None, db_path="database.db"):
     conn = sqlite3.connect(db_path)
     df = pd.read_sql_query("SELECT * FROM sample_metadata", conn)
@@ -154,10 +154,3 @@ def analyze_baseline_subset(filters=None, db_path="database.db"):
 
     st.subheader("Subjects by Sex")
     st.text(df.groupby("sex")["subject"].nunique().to_string())
-
-
-
-if __name__ == "__main__":
-    summary = get_frequency_summary()
-    compare_response_groups(summary)
-    analyze_baseline_subset()

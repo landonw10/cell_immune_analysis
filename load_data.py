@@ -52,6 +52,3 @@ def load_csv_to_db(csv_path, db_path="database.db"):
 
     conn.close()
     print("Data loaded successfully.")
-
-if __name__ == "__main__":
-    load_csv_to_db("cell-count.csv")
