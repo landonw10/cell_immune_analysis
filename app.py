@@ -47,9 +47,34 @@ elif view == "Response Group Comparison":
     st.header("📊 Response Group Comparison")
     st.write("Compare responders vs. non-responders based on selected filters.")
 
-    condition = st.selectbox("Condition", options=["melanoma", "carcinoma"])
-    treatment = st.selectbox("Treatment", options=["miraclib", "phauximab"])
-    sample_type = st.selectbox("Sample Type", options=["PBMC", "WB"])
+    # Load metadata for filtering
+    conn = sqlite3.connect("database.db")
+    metadata = pd.read_sql_query("SELECT condition, treatment, sample_type FROM sample_metadata", conn)
+    conn.close()
+
+    # Get unique options to index for filters
+    condition_options = sorted(metadata["condition"].dropna().unique())
+    treatment_options = sorted(metadata["treatment"].dropna().unique())
+    sample_type_options = sorted(metadata["sample_type"].dropna().unique())
+
+    # Create filters, preset to melanoma, miraclib, and PBMC
+    condition = st.selectbox(
+        "Condition",
+        options=condition_options,
+        index=condition_options.index("melanoma") if "melanoma" in condition_options else 0
+    )
+
+    treatment = st.selectbox(
+        "Treatment",
+        options=treatment_options,
+        index=treatment_options.index("miraclib") if "miraclib" in treatment_options else 0
+    )
+
+    sample_type = st.selectbox(
+        "Sample Type",
+        options=sample_type_options,
+        index=sample_type_options.index("PBMC") if "PBMC" in sample_type_options else 0
+    )
 
     filters = {
         "condition": [condition],
@@ -58,6 +83,7 @@ elif view == "Response Group Comparison":
     }
 
     compare_response_groups(summary, filters=filters)
+
 
 elif view == "Subset Summary":
     st.header("🔍 Subset Summary")
@@ -68,29 +94,29 @@ elif view == "Subset Summary":
     metadata = pd.read_sql_query("SELECT condition, treatment, sample_type, time_from_treatment_start FROM sample_metadata", conn)
     conn.close()
 
-    # Filters using metadata
+    # Create filters, preset to melanoma, miraclib, PBMC, and 0 days
     conditions = st.multiselect(
         "Select Condition",
-        options=metadata["condition"].unique(),
+        options=metadata["condition"].dropna().unique(),
         default=["melanoma"] if "melanoma" in metadata["condition"].unique() else []
     )
 
     treatments = st.multiselect(
         "Select Treatment",
-        options=metadata["treatment"].unique(),
+        options=metadata["treatment"].dropna().unique(),
         default=["miraclib"] if "miraclib" in metadata["treatment"].unique() else []
     )
 
     sample_types = st.multiselect(
         "Select Sample Type",
-        options=metadata["sample_type"].unique(),
+        options=metadata["sample_type"].dropna().unique(),
         default=["PBMC"] if "PBMC" in metadata["sample_type"].unique() else []
     )
 
     timepoints = st.multiselect(
         "Select Timepoint (Days from Treatment Start)",
         options=metadata["time_from_treatment_start"].dropna().unique(),
-        default=[0] if 0 in metadata["time_from_treatment_start"].dropna().unique() else []
+        default=[0] if 0 in metadata["time_from_treatment_start"].unique() else []
     )
 
     filters = {
