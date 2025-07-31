@@ -45,7 +45,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Load sample metadata
     conn = sqlite3.connect(db_path)
     metadata = pd.read_sql_query(
-        "SELECT sample_id, condition, treatment, sample_type, response FROM sample_metadata", conn
+        "SELECT sample_id, condition, treatment, sample_type, response, time_from_treatment_start FROM sample_metadata", conn
     )
     conn.close()
 
@@ -60,6 +60,8 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
             merged = merged[merged["treatment"].isin(filters["treatment"])]
         if filters.get("sample_type"):
             merged = merged[merged["sample_type"].isin(filters["sample_type"])]
+        if filters.get("timepoint"):
+            merged = merged[merged["time_from_treatment_start"].isin(filters["timepoint"])]
 
     if merged.empty:
         st.warning("No data available for the selected filters.")
@@ -159,3 +161,6 @@ def analyze_subset(filters=None, db_path="database.db"):
 
     st.subheader("Subjects by Sex")
     st.text(df.groupby("sex")["subject"].nunique().to_string())
+
+    st.subheader("Samples Matching Filters")
+    st.dataframe(df[["sample_id"]].drop_duplicates().reset_index(drop=True))

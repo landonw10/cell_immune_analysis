@@ -52,13 +52,14 @@ elif view == "Response Group Comparison":
 
     # Load metadata for filtering
     conn = sqlite3.connect("database.db")
-    metadata = pd.read_sql_query("SELECT condition, treatment, sample_type FROM sample_metadata", conn)
+    metadata = pd.read_sql_query("SELECT condition, treatment, sample_type, time_from_treatment_start FROM sample_metadata", conn)
     conn.close()
 
     # Get unique options to index for filters
     condition_options = sorted(metadata["condition"].dropna().unique())
     treatment_options = sorted(metadata["treatment"].dropna().unique())
     sample_type_options = sorted(metadata["sample_type"].dropna().unique())
+    timepoint_options = sorted(metadata["time_from_treatment_start"].dropna().unique())
 
     # Create filters, preset to melanoma, miraclib, and PBMC
     condition = st.selectbox(
@@ -79,10 +80,17 @@ elif view == "Response Group Comparison":
         index=sample_type_options.index("PBMC") if "PBMC" in sample_type_options else 0
     )
 
+    timepoint = st.multiselect(
+        "Timepoints to Include (Empty for all)",
+        options=timepoint_options,
+        default=[]
+    )
+
     filters = {
         "condition": [condition],
         "treatment": [treatment],
-        "sample_type": [sample_type]
+        "sample_type": [sample_type],
+        "timepoint": timepoint
     }
 
     compare_response_groups(summary, filters=filters)
