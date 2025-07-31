@@ -64,6 +64,10 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     if merged.empty:
         st.warning("No data available for the selected filters.")
         return
+    
+    if merged["response"].isna().all():
+        st.warning("Filtered samples have no response information to compare.")
+        return
 
     # Display data w/ boxplot
     fig, ax = plt.subplots(figsize=(10, 6))
