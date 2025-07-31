@@ -23,7 +23,7 @@ The project uses a `.devcontainer` with Python 3.10 and automatic dependency set
 
 https://github.com/codespaces
 
-2. Install dependencies (if not done automatically):
+2. Wait for automatic setup (Python 3.10 and dependencies) or manually install if necessary:
 
 ```bash
 pip install -r requirements.txt
@@ -147,6 +147,6 @@ By isolating data handling, computation, and interface logic, the project is eas
 
 - Subset Summary: Filter samples based on condition, treatment, sample type, and timepoint to view counts by project, response, and gender.
 
-Contains functionality to filter and analyze by any group, but it autoset to display the requested melanoma PBMC samples treated with miraclib.
+Contains functionality to filter and analyze by any group, but is preconfigured to display the requested melanoma PBMC samples treated with miraclib.
 
 Dashboard URL: https://cell-immune-analysis.streamlit.app/
