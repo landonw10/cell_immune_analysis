@@ -72,6 +72,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
         st.warning("Filtered samples have no response information to compare.")
         return
 
+
     # Display data w/ boxplot
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.boxplot(
@@ -93,11 +94,15 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     with col1:
         st.pyplot(fig)
 
+
     # Used to summarize statistical significance
     significant_pops = []
 
     # Convert response to binary for modeling
     merged["response_bin"] = merged["response"].map({"yes": 1, "no": 0})
+
+    # Get unique immune cell populations for statistical comparison
+    populations = merged["population"].unique()
 
     # Run LMEM for multiple timepoints (mutiple subject samples) or Mann-Whitney U for single timepoint (single subject samples)
     if not filters.get("timepoint") or len(filters["timepoint"]) != 1:
@@ -105,8 +110,6 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
         print("Statistical Comparison using linear mixed effects model:")
         st.subheader("Linear Mixed Effects Model Results between Responders and Non-Responders")
         st.write("Please allow time for analysis to complete")
-
-        populations = merged["population"].unique()
 
         for pop in populations:
             group = merged[merged["population"] == pop]
@@ -135,7 +138,6 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
         # Statistical analysis using Mann-Whitney U test
         print("Statistical Comparison using Mann-Whitney U Test:")
         st.subheader("Mann-Whitney U Test Results between Responders and Non-Responders")
-        populations = merged["population"].unique()
 
         for pop in populations:
             group = merged[merged["population"] == pop]
@@ -151,6 +153,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
             else:
                 print(f"{pop}: Not enough data for statistical test")
                 st.write(f"{pop}: Not enough data")
+
 
     # Print/display summary sentence
     st.subheader("Summary")
