@@ -23,7 +23,7 @@ The project uses a `.devcontainer` with Python 3.10 and automatic dependency set
 
 https://github.com/codespaces
 
-2. Install dependencies (if not done automatically):
+2. Wait for automatic setup (Python 3.10 and dependencies) or manually install if necessary:
 
 ```bash
 pip install -r requirements.txt
