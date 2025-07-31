@@ -17,9 +17,6 @@ if not os.path.exists("database.db"):
 st.set_page_config(page_title="Immune Cell Dashboard", layout="wide")
 st.title("🧬 Immune Cell Frequency Analysis Dashboard")
 
-# Load frequency data
-summary = get_frequency_summary()
-
 # Sidebar navigation
 view = st.sidebar.selectbox("Select View", [
     "Overview", 
@@ -30,6 +27,9 @@ view = st.sidebar.selectbox("Select View", [
 if view == "Overview":
     st.header("📋 Overview of Cell Frequencies")
     st.write("Interactive view of immune cell frequencies per sample, with filters for sample and cell population.")
+
+    # Load frequency summary
+    summary = get_frequency_summary()
 
     # Filters
     samples = st.multiselect("Select Samples", options=summary["sample"].unique())
@@ -46,6 +46,9 @@ if view == "Overview":
 elif view == "Response Group Comparison":
     st.header("📊 Response Group Comparison")
     st.write("Compare responders vs. non-responders based on selected filters.")
+
+    # Load frequency summary
+    summary = get_frequency_summary()
 
     # Load metadata for filtering
     conn = sqlite3.connect("database.db")
