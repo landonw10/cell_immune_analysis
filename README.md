@@ -67,13 +67,13 @@ streamlit run app.py
 
 The database schema and application code logic are designed to be normalized, easily extensible, and scalable for broader clinical and immunological analysis.
 
-The schema separates metadata (`sample_metadata`) from measurements (`cell_counts`), eliminating redundancy and supporting flexible analytics. Foreign key constraints maintain integrity between tables. This design supports efficient operation even with across larger projects with bigger sample size and more cell types, treatments, conditions, and timepoints.
+The schema separates metadata (`sample_metadata`) from measurements (`cell_counts`), eliminating redundancy and supporting flexible analytics. Foreign key constraints maintain integrity between tables. This design supports efficient operation even with across larger projects with bigger sample size and more treatments, conditions, and timepoints.
 
-The dashboard and backend logic are built to be dynamic and work for any dataset using the same .csv column structure. Filter options (condition, treatment, sample type, timepoint) are loaded directly from the database at runtime. This enables the dashboard to adapt to any dataset conforming to the schema. No code changes are needed when introducing new disease types, treatments, or sample types.
+The dashboard and backend logic are built to be dynamic and work for any dataset using the same CSV column structure. Filter options (condition, treatment, sample type, timepoint) are loaded directly from the database at runtime. This enables the dashboard to adapt to any dataset conforming to the schema. No code changes are needed when introducing new disease types, treatments, or sample types.
 
 The analysis module supports:
 - Cell frequency computation for each sample and immune cell type
-- Statistical comparisons between responder vs. non-responder groups using the Mann-Whitney U test
+- Statistical comparisons between responder vs. non-responder groups using Mann-Whitney U tests and Linear Mixed Effect Models
 - Subset summaries of sample distributions across metadata fields
 
 These operations are modular and easily extensible to additional analytics or more complex filtering logic.
@@ -137,6 +137,14 @@ The project is structured to separate logic across three key areas: data loading
 - `app.py` is responsible for the user interface and routing. It provides navigation, leaves computational work to `analysis.py`, and dynamically populates all filter options from the database. This ensures the interface adapts automatically to any valid dataset that conforms to the schema.
 
 By isolating data handling, computation, and interface logic, the project is easy to scale and extend. New views, filters, or statistical tests can be added with minimal impact on the rest of the codebase.
+
+---
+
+## Statistical Methods
+
+When selecting a single timepoint, the dataset includes one sample per subject, and a Mann-Whitney U test is used to compare responders vs. non-responders and calculate p-values. 
+
+When multiple timepoints are selected, subjects contribute multiple samples, violating the independence assumption of the Mann-Whitney U test. In this case, a Linear Mixed Effects Model treats subject ID as a random effect to account for within-subject correlation and compute p-values based on response group (https://pmc.ncbi.nlm.nih.gov/articles/PMC308915/).
 
 ---
 
