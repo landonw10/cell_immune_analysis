@@ -88,7 +88,6 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     ax.legend(title="Response")
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()
 
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -107,7 +106,6 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Run LMEM for multiple timepoints (mutiple subject samples) or Mann-Whitney U for single timepoint (single subject samples)
     if not filters.get("timepoint") or len(filters["timepoint"]) != 1:
         # Statistical analysis using linear mixed effects model
-        print("Statistical Comparison using linear mixed effects model:")
         st.subheader("Linear Mixed Effects Model Results between Responders and Non-Responders")
         st.write("Please allow time for analysis to complete")
 
@@ -121,22 +119,17 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
                     result = model.fit()
                     p = result.pvalues.get("response_bin", None)
                     if p is not None:
-                        print(f"{pop}: p = {p:.4f}")
                         st.write(f"**{pop}**: p = {p:.4f}")
                         if p < 0.05:
                             significant_pops.append(pop)
                     else:
-                        print(f"{pop}: p-value not available")
                         st.write(f"{pop}: p-value not available")
                 except Exception as e:
-                    print(f"{pop}: Error in model fitting - {e}")
                     st.write(f"{pop}: Error in model fitting")
             else:
-                print(f"{pop}: Not enough data for model")
                 st.write(f"{pop}: Not enough data")
     else:
         # Statistical analysis using Mann-Whitney U test
-        print("Statistical Comparison using Mann-Whitney U Test:")
         st.subheader("Mann-Whitney U Test Results between Responders and Non-Responders")
 
         for pop in populations:
@@ -146,30 +139,22 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
 
             if len(yes) > 0 and len(no) > 0:
                 stat, p = mannwhitneyu(yes, no, alternative="two-sided")
-                print(f"{pop}: p = {p:.4f}")
                 st.write(f"**{pop}**: p = {p:.4f}")
                 if p < 0.05:
                     significant_pops.append(pop)
             else:
-                print(f"{pop}: Not enough data for statistical test")
                 st.write(f"{pop}: Not enough data")
 
 
     # Print/display summary sentence
     st.subheader("Summary")
     if significant_pops:
-        print(
-            f"\n{', '.join(significant_pops)} "
-            f"{'shows' if len(significant_pops) == 1 else 'show'} a statistically significant "
-            "difference in relative frequency between responders and non-responders for the selected filters."
-        )
         st.markdown(
             f"**{', '.join(significant_pops)}** "
             f"{'shows' if len(significant_pops) == 1 else 'show'} a statistically significant "
             "difference in relative frequency between responders and non-responders for the selected filters."
         )
     else:
-        print("\nNo cell populations show a statistically significant difference in relative frequency for the selected filters.")
         st.write("No significant differences found.")
 
 

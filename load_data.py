@@ -51,4 +51,3 @@ def load_csv_to_db(csv_path, db_path="database.db"):
         .to_sql("cell_counts", conn, if_exists="replace", index=False)
 
     conn.close()
-    print("Data loaded successfully.")
