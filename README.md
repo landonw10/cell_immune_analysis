@@ -143,10 +143,10 @@ By isolating data handling, computation, and interface logic, the project is eas
 ## Dashboard Features
 - Overview: Relative frequency (%) of each immune cell population across all samples.
 
-- Response Group Comparison: Boxplot comparison and statistical analysis of cell type frequencies between responders and non-responders.
+- Response Group Comparison: Boxplot comparison and statistical analysis of cell type frequencies between responders and non-responders of any group of interest.
 
-- Subset Summary: Filter samples based on condition, treatment, sample type, and timepoint to view counts by project, response, and gender.
+- Subset Summary: Filter samples based on condition, treatment, sample type, and timepoint to view samples that match those filters and counts by project, response, and gender.
 
-Contains functionality to filter and analyze by any group, but is preconfigured to display the requested melanoma PBMC samples treated with miraclib.
+Contains functionality to filter and analyze by any group, but is preconfigured to display the requested melanoma PBMC samples treated with miraclib. Filter options are loaded from the database to support any dataset conforming to the schema.
 
 Dashboard URL: https://cell-immune-analysis.streamlit.app/
