@@ -46,6 +46,7 @@ if view == "Overview":
 elif view == "Response Group Comparison":
     st.header("📊 Response Group Comparison")
     st.write("Compare responders vs. non-responders based on selected filters.")
+    st.write("Multiple samples per subject are analyzed using a linear mixed effects model, one sample per subject is analyzed using a Mann-Whitney U test.")
 
     # Load frequency summary
     summary = get_frequency_summary()

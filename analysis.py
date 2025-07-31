@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 from scipy.stats import mannwhitneyu
+import statsmodels.formula.api as smf
 
 
 
@@ -45,7 +46,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Load sample metadata
     conn = sqlite3.connect(db_path)
     metadata = pd.read_sql_query(
-        "SELECT sample_id, condition, treatment, sample_type, response, time_from_treatment_start FROM sample_metadata", conn
+        "SELECT sample_id, condition, treatment, sample_type, response, time_from_treatment_start, subject FROM sample_metadata", conn
     )
     conn.close()
 
@@ -92,26 +93,63 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     with col1:
         st.pyplot(fig)
 
-    # Statistical analysis using Mann-Whitney U test
-    print("Statistical Comparison (Mann-Whitney U Test):")
-    st.subheader("Mann-Whitney U Test Results between Responders and Non-Responders")
-    populations = merged["population"].unique()
+    # Used to summarize statistical significance
     significant_pops = []
 
-    for pop in populations:
-        group = merged[merged["population"] == pop]
-        yes = group[group["response"] == "yes"]["percentage"]
-        no = group[group["response"] == "no"]["percentage"]
+    # Convert response to binary for modeling
+    merged["response_bin"] = merged["response"].map({"yes": 1, "no": 0})
 
-        if len(yes) > 0 and len(no) > 0:
-            stat, p = mannwhitneyu(yes, no, alternative="two-sided")
-            print(f"{pop}: p = {p:.4f}")
-            st.write(f"**{pop}**: p = {p:.4f}")
-            if p < 0.05:
-                significant_pops.append(pop)
-        else:
-            print(f"{pop}: Not enough data for statistical test")
-            st.write(f"{pop}: Not enough data")
+    # Run LMEM for multiple timepoints or Mann-Whitney U for single timepoint
+    if not filters.get("timepoint") or len(filters["timepoint"]) != 1:
+        # Statistical analysis using linear mixed effects model
+        print("Statistical Comparison using linear mixed effects model:")
+        st.subheader("Linear Mixed Effects Model Results between Responders and Non-Responders")
+        st.write("Please allow time for analysis to complete")
+
+        populations = merged["population"].unique()
+
+        for pop in populations:
+            group = merged[merged["population"] == pop]
+
+            if group["response_bin"].nunique() == 2 and group["subject"].nunique() > 1:
+                try:
+                    model = smf.mixedlm("percentage ~ response_bin", group, groups=group["subject"])
+                    result = model.fit()
+                    p = result.pvalues.get("response_bin", None)
+                    if p is not None:
+                        print(f"{pop}: p = {p:.4f}")
+                        st.write(f"**{pop}**: p = {p:.4f}")
+                        if p < 0.05:
+                            significant_pops.append(pop)
+                    else:
+                        print(f"{pop}: p-value not available")
+                        st.write(f"{pop}: p-value not available")
+                except Exception as e:
+                    print(f"{pop}: Error in model fitting - {e}")
+                    st.write(f"{pop}: Error in model fitting")
+            else:
+                print(f"{pop}: Not enough data for model")
+                st.write(f"{pop}: Not enough data")
+    else:
+        # Statistical analysis using Mann-Whitney U test
+        print("Statistical Comparison using Mann-Whitney U Test:")
+        st.subheader("Mann-Whitney U Test Results between Responders and Non-Responders")
+        populations = merged["population"].unique()
+
+        for pop in populations:
+            group = merged[merged["population"] == pop]
+            yes = group[group["response"] == "yes"]["percentage"]
+            no = group[group["response"] == "no"]["percentage"]
+
+            if len(yes) > 0 and len(no) > 0:
+                stat, p = mannwhitneyu(yes, no, alternative="two-sided")
+                print(f"{pop}: p = {p:.4f}")
+                st.write(f"**{pop}**: p = {p:.4f}")
+                if p < 0.05:
+                    significant_pops.append(pop)
+            else:
+                print(f"{pop}: Not enough data for statistical test")
+                st.write(f"{pop}: Not enough data")
 
     # Print/display summary sentence
     st.subheader("Summary")
