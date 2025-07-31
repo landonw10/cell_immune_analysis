@@ -99,7 +99,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
     # Convert response to binary for modeling
     merged["response_bin"] = merged["response"].map({"yes": 1, "no": 0})
 
-    # Run LMEM for multiple timepoints or Mann-Whitney U for single timepoint
+    # Run LMEM for multiple timepoints (mutiple subject samples) or Mann-Whitney U for single timepoint (single subject samples)
     if not filters.get("timepoint") or len(filters["timepoint"]) != 1:
         # Statistical analysis using linear mixed effects model
         print("Statistical Comparison using linear mixed effects model:")
@@ -113,6 +113,7 @@ def compare_response_groups(summary_df, filters=None, db_path="database.db"):
 
             if group["response_bin"].nunique() == 2 and group["subject"].nunique() > 1:
                 try:
+                    #Treat subject as a random effect accounting for multiple samples from each subject
                     model = smf.mixedlm("percentage ~ response_bin", group, groups=group["subject"])
                     result = model.fit()
                     p = result.pvalues.get("response_bin", None)
