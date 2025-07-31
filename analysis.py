@@ -199,7 +199,10 @@ def analyze_subset(filters=None, db_path="database.db"):
     st.text(df["project"].value_counts().to_string())
 
     st.subheader("Subjects by Response")
-    st.text(df.groupby("response")["subject"].nunique().to_string())
+    if df["response"].notna().any():
+        st.text(df.groupby("response")["subject"].nunique().to_string())
+    else:
+        st.text("No response data available for selected filters.")
 
     st.subheader("Subjects by Sex")
     st.text(df.groupby("sex")["subject"].nunique().to_string())
