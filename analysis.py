@@ -194,3 +194,29 @@ def analyze_subset(filters=None, db_path="database.db"):
 
     st.subheader("Samples Matching Filters")
     st.dataframe(df[["sample_id"]].drop_duplicates().reset_index(drop=True))
+
+
+# ORM Implementation
+
+from db_session import SessionLocal
+from models import SampleMetadata, CellCount
+
+def get_frequency_summary_orm():
+    session = SessionLocal()
+
+    # Query cell counts via ORM
+    q = session.query(CellCount.sample_id, CellCount.cell_type, CellCount.count)
+    df = pd.DataFrame(q.all(), columns=["sample_id", "population", "count"])
+
+    session.close()
+
+    # Add total counts and calculate percentages
+    totals = df.groupby("sample_id")["count"].sum().rename("total_count")
+    merged = df.merge(totals, on="sample_id")
+    merged["percentage"] = merged["count"] / merged["total_count"] * 100
+
+    # Match SQL namestyle
+    summary = merged.rename(columns={"sample_id": "sample"})
+
+    st.write("Loaded using analysis implementing ORM queries.")
+    return summary[["sample", "total_count", "population", "count", "percentage"]]

@@ -6,6 +6,10 @@ import seaborn as sns
 import os
 from analysis import get_frequency_summary, display_frequency_summary, compare_response_groups, analyze_subset
 from load_data import create_schema, load_csv_to_db
+from db_session import init_db
+
+# Make sure ORM is initialized
+init_db()
 
 # Ensure the database and schema exist
 if not os.path.exists("database.db"):
@@ -28,8 +32,15 @@ if view == "Overview":
     st.header("📋 Overview of Cell Frequencies")
     st.write("Interactive view of immune cell frequencies per sample, with filters for sample and cell population.")
 
+    use_orm = st.sidebar.checkbox("Use ORM (experimental)", value=False)
+
     # Load frequency summary
-    summary = get_frequency_summary()
+    if use_orm:
+        from analysis import get_frequency_summary_orm
+        summary = get_frequency_summary_orm()
+    else:
+        from analysis import get_frequency_summary
+        summary = get_frequency_summary()
 
     # Filters
     samples = st.multiselect("Select Samples", options=summary["sample"].unique())
