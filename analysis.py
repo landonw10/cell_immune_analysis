@@ -208,13 +208,6 @@ def get_frequency_summary_orm():
     q = session.query(CellCount.sample_id, CellCount.cell_type, CellCount.count)
     df = pd.DataFrame(q.all(), columns=["sample", "population", "count"])
 
-    # Another example: query and print data for melanoma samples
-    melanoma_samples = (session.query(SampleMetadata).filter(SampleMetadata.condition == "melanoma").all())
-    for sample in melanoma_samples:
-        print(f"Sample ID: {sample.sample_id}, Condition: {sample.condition}")
-        for count in sample.counts:
-            print(f"  Cell Type: {count.cell_type}, Count: {count.count}")
-
     session.close()
 
     # Add total counts and calculate percentages
@@ -226,3 +219,13 @@ def get_frequency_summary_orm():
     return merged[["sample", "total_count", "population", "count", "percentage"]]
 
 
+# Another example: query and print data for melanoma samples
+session = SessionLocal()
+
+melanoma_samples = (session.query(SampleMetadata).filter(SampleMetadata.condition == "melanoma").all())
+for sample in melanoma_samples:
+    print(f"Sample ID: {sample.sample_id}, Condition: {sample.condition}")
+    for count in sample.counts:
+        print(f"  Cell Type: {count.cell_type}, Count: {count.count}")
+
+session.close()

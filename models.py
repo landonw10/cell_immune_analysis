@@ -28,11 +28,8 @@ class CellCount(Base):
     # Maps class to the cell_counts SQLite table
     __tablename__ = "cell_counts"
 
-    # Unique row identifier, since sample_id is not unique
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-
-    sample_id: Mapped[str] = mapped_column(ForeignKey("sample_metadata.sample_id", ondelete="CASCADE"), index=True)
-    cell_type: Mapped[str] = mapped_column(String)
+    sample_id: Mapped[str] = mapped_column(ForeignKey("sample_metadata.sample_id", ondelete="CASCADE"), primary_key=True, index=True)
+    cell_type: Mapped[str] = mapped_column(String, primary_key=True)
     count: Mapped[int] = mapped_column(Integer)
 
     # Creates many-to-one relationship, allowing CellCount objects to reference sample info
