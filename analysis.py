@@ -218,7 +218,7 @@ def get_frequency_summary_orm():
     st.write("Loaded using analysis implementing ORM queries.")
     return merged[["sample", "total_count", "population", "count", "percentage"]]
 
-
+'''''
 # Another example: query and print data for melanoma samples
 session = SessionLocal()
 
@@ -229,3 +229,4 @@ for sample in melanoma_samples:
         print(f"  Cell Type: {count.cell_type}, Count: {count.count}")
 
 session.close()
+'''
