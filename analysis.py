@@ -204,19 +204,25 @@ from models import SampleMetadata, CellCount
 def get_frequency_summary_orm():
     session = SessionLocal()
 
-    # Query cell counts via ORM
+    # Query cell counts via ORM, changing column names to match summary format
     q = session.query(CellCount.sample_id, CellCount.cell_type, CellCount.count)
-    df = pd.DataFrame(q.all(), columns=["sample_id", "population", "count"])
+    df = pd.DataFrame(q.all(), columns=["sample", "population", "count"])
+
+    # Another example: query and print data for melanoma samples
+    melanoma_samples = (session.query(SampleMetadata).filter(SampleMetadata.condition == "melanoma").all())
+    for sample in melanoma_samples:
+        print(f"Sample ID: {sample.sample_id}, Condition: {sample.condition}")
+        for count in sample.counts:
+            print(f"  Cell Type: {count.cell_type}, Count: {count.count}")
 
     session.close()
 
     # Add total counts and calculate percentages
-    totals = df.groupby("sample_id")["count"].sum().rename("total_count")
-    merged = df.merge(totals, on="sample_id")
+    totals = df.groupby("sample")["count"].sum().rename("total_count")
+    merged = df.merge(totals, on="sample")
     merged["percentage"] = merged["count"] / merged["total_count"] * 100
 
-    # Match SQL namestyle
-    summary = merged.rename(columns={"sample_id": "sample"})
-
     st.write("Loaded using analysis implementing ORM queries.")
-    return summary[["sample", "total_count", "population", "count", "percentage"]]
+    return merged[["sample", "total_count", "population", "count", "percentage"]]
+
+

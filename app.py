@@ -8,15 +8,15 @@ from analysis import get_frequency_summary, display_frequency_summary, compare_r
 from load_data import create_schema, load_csv_to_db
 from db_session import init_db
 
-# Make sure ORM is initialized
-init_db()
-
 # Ensure the database and schema exist
 if not os.path.exists("database.db"):
     conn = sqlite3.connect("database.db")
     create_schema(conn)
     conn.close()
     load_csv_to_db("cell-count.csv")
+
+# Make sure ORM is initialized
+init_db()
 
 st.set_page_config(page_title="Immune Cell Dashboard", layout="wide")
 st.title("🧬 Immune Cell Frequency Analysis Dashboard")
@@ -32,7 +32,7 @@ if view == "Overview":
     st.header("📋 Overview of Cell Frequencies")
     st.write("Interactive view of immune cell frequencies per sample, with filters for sample and cell population.")
 
-    use_orm = st.sidebar.checkbox("Use ORM (experimental)", value=False)
+    use_orm = st.checkbox("Use ORM (experimental)", value=False)
 
     # Load frequency summary
     if use_orm:
